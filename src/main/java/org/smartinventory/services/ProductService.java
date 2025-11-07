@@ -103,8 +103,11 @@ public class ProductService extends BaseService {
     }
 
     public void showLowStock() {
-        getAllProducts().stream()
-                .filter(p -> p.getStock() < 5)
-                .forEach(System.out::println);
+        for (Product p : getAllProducts()) {
+            if (p.getStock() < 5) {
+                System.out.println(p);
+            }
+        }
+
     }
 }

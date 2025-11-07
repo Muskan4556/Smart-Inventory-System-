@@ -6,7 +6,7 @@ public class OrderService extends BaseService {
 
     private final ProductService productService = new ProductService();
 
-    public void placeOrder(int productId, int quantity) {
+    public synchronized void placeOrder(int productId, int quantity) {
         String selectProductSql = "SELECT * FROM products WHERE id=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(selectProductSql)) {
@@ -21,8 +21,9 @@ public class OrderService extends BaseService {
                 if (stock >= quantity) {
                     double total = price * quantity;
 
-                    // Insert order
-                    String insertOrderSql = "INSERT INTO orders (product_id, quantity, total) VALUES (?, ?, ?)";
+                    // Insert order record
+                    String insertOrderSql =
+                            "INSERT INTO orders (product_id, quantity, total) VALUES (?, ?, ?)";
                     try (PreparedStatement psOrder = conn.prepareStatement(insertOrderSql)) {
                         psOrder.setInt(1, productId);
                         psOrder.setInt(2, quantity);
@@ -30,7 +31,7 @@ public class OrderService extends BaseService {
                         psOrder.executeUpdate();
                     }
 
-                    // Update product stock
+                    // Update stock
                     String updateStockSql = "UPDATE products SET stock = stock - ? WHERE id=?";
                     try (PreparedStatement psUpdate = conn.prepareStatement(updateStockSql)) {
                         psUpdate.setInt(1, quantity);
@@ -38,18 +39,21 @@ public class OrderService extends BaseService {
                         psUpdate.executeUpdate();
                     }
 
-                    System.out.println("🛒 Order placed! Total = ₹" + total);
-
+                    System.out.println(Thread.currentThread().getName()
+                            + "Order placed! Total = Rs. " + total);
                 } else {
-                    System.out.println("Not enough stock!");
+                    System.out.println(Thread.currentThread().getName()
+                            + "Not enough stock!");
                 }
 
             } else {
-                System.out.println("Product not found!");
+                System.out.println(Thread.currentThread().getName()
+                        + "Product not found!");
             }
 
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println(Thread.currentThread().getName()
+                    + "Error: " + e.getMessage());
         }
     }
 }

@@ -8,6 +8,32 @@ import org.smartinventory.services.ReportService;
 import java.util.Scanner;
 
 public class Main {
+
+    private static void simulateConcurrentOrders() {
+        OrderService os = new OrderService();
+
+        Thread t1 = new Thread(() -> os.placeOrder(5, 2), "Thread-1: ");
+        Thread t2 = new Thread(() -> os.placeOrder(7, 3), "Thread-2: ");
+        Thread t3 = new Thread(() -> os.placeOrder(2, 1), "Thread-3: ");
+
+        System.out.println("\nStarting multi-threaded order simulation...\n");
+
+        t1.start();
+        t2.start();
+        t3.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+        } catch (InterruptedException e) {
+            System.out.println("Simulation interrupted: " + e.getMessage());
+        }
+
+        System.out.println("\n Multi-threaded order simulation complete!\n");
+    }
+
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         ProductService ps = new ProductService();
@@ -25,6 +51,7 @@ public class Main {
             System.out.println("7️ Total Sales");
             System.out.println("8️ Most Sold Products");
             System.out.println("9️ Monthly Sales Report");
+            System.out.println("10 Simulate Multi-Threaded Orders");
             System.out.println("0️ Exit");
             System.out.print("Choose an option: ");
 
@@ -46,7 +73,10 @@ public class Main {
 
                     case 2:
                         System.out.println("ID   Name            Category   Price      Stock");
-                        ps.getAllProducts().forEach(System.out::println);
+                        for (Product p : ps.getAllProducts()) {
+                            System.out.println(p);
+                        }
+
                         break;
 
                     case 3:
@@ -94,6 +124,11 @@ public class Main {
                         rs.monthlySales();
                         break;
 
+                    case 10:
+                        simulateConcurrentOrders();
+                        break;
+
+
                     case 0:
                         System.out.println("Exiting...");
                         System.exit(0);
@@ -106,4 +141,6 @@ public class Main {
             }
         }
     }
+
 }
+

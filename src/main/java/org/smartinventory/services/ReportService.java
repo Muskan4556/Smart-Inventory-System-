@@ -44,7 +44,7 @@ public class ReportService extends BaseService implements Reportable {
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
-            System.out.println("📅 onthly Sales:");
+            System.out.println("Monthly Sales:");
             SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
 
             while (rs.next()) {
